@@ -3,6 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Text;
+using System.Linq;
 
 namespace ConvertEncoding
 {
@@ -13,7 +14,7 @@ namespace ConvertEncoding
 #if DEBUG
             if (args == null || args.Length < 1)
             {
-                args = new string[] { "-i", ".\\Test" };
+                args = new string[] { "-i", ".\\Test" , "--extensionw" , ".h" , ".cpp" , "--outputlog" };
             }
 #endif
             AppDomain.CurrentDomain.UnhandledException += OnException;
@@ -27,7 +28,14 @@ namespace ConvertEncoding
                     break;
                 case ParserResultType.NotParsed:
                 default:
-                    Console.WriteLine("Failed to parse commandline.");
+                    Options template = new Options();
+                    template.OutputEncoding = "gbk";
+                    template.ExtensionWhiteList = new string[] { "c", "h", "cpp" };
+                    template.ExtensionBlackList = new string[] { "txt", "png" };
+                    template.InputDirectory = "D:\\";
+                    template.OutputLog = true;
+                    Console.WriteLine("Example:");
+                    Console.WriteLine("\tbash " + Parser.Default.FormatCommandLine<Options>(template));
                     break;
             }
             Console.ReadKey();
@@ -74,6 +82,10 @@ namespace ConvertEncoding
                 {
                     inputFiles.Add(iterFileInfo);
                 }
+                else if (options.OutputLog)
+                {
+                    Console.WriteLine("Ignore file: " + iterFileInfo.FullName);
+                }
             }
 
             int convertedFileCount = 0;
@@ -90,7 +102,7 @@ namespace ConvertEncoding
                     {
                         inputEncoding = Encoding.GetEncoding(cdet.Charset);
                     }
-                    else
+                    else if (options.OutputLog)
                     {
                         Console.WriteLine(string.Format("{0} Cant detector file encoding", iterFile.FullName));
                     }
@@ -102,6 +114,11 @@ namespace ConvertEncoding
                             , outputEncoding
                             , File.ReadAllBytes(iterFile.FullName)));
                     convertedFileCount++;
+                    Console.WriteLine("Converted File: " + iterFile.FullName);
+                }
+                else if (options.OutputLog)
+                {
+                    Console.WriteLine(string.Format("File encoding already is ({0}): {1}", options.OutputEncoding, iterFile.FullName));
                 }
             }
             Console.WriteLine(string.Format("Converted {0} files", convertedFileCount));
@@ -151,5 +168,10 @@ namespace ConvertEncoding
             , Default = "utf-8"
             , HelpText = "Output Encoding")]
         public string OutputEncoding { get; set; }
+
+        [Option("outputlog"
+           , Default = false
+           , HelpText = "Output Log")]
+        public bool OutputLog { get; set; }
     }
 }
