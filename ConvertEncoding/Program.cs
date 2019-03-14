@@ -30,8 +30,8 @@ namespace ConvertEncoding
                 default:
                     Options template = new Options();
                     template.OutputEncoding = "gbk";
-                    template.ExtensionWhiteList = new string[] { "c", "h", "cpp" };
-                    template.ExtensionBlackList = new string[] { "txt", "png" };
+                    template.ExtensionWhiteList = new string[] { ".c", ".h", ".cpp" };
+                    template.ExtensionBlackList = new string[] { ".txt", ".png" };
                     template.InputDirectory = "D:\\";
                     template.OutputLog = true;
                     Console.WriteLine("Example:");
